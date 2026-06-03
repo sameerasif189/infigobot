@@ -1,0 +1,10 @@
+{
+  "max_input_tokens": 1500,
+  "max_output_tokens": 180,
+  "max_retrieval_chunks": 3,
+  "min_confidence_to_answer": 0.55,
+  "monthly_budget_usd": 50,
+  "monthly_alert_percent": 80,
+  "handoff_on_low_confidence": true,
+  "handoff_on_sensitive_intent": true
+}

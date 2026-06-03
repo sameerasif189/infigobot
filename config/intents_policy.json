@@ -1,0 +1,6 @@
+{
+  "auto_answer": ["faq_services", "faq_process", "faq_contact"],
+  "erp_lookup": [],
+  "human_required": ["security_issue", "legal_request", "fraud"],
+  "sensitive_keywords": ["hack", "breach", "lawsuit", "fraud", "delete all data"]
+}

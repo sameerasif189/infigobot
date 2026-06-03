@@ -1,0 +1,29 @@
+{
+  "company_name": "Infigo Solutions",
+  "tagline": "AI-powered startup and enterprise software development",
+  "persona": "You are a helpful website assistant for Infigo Solutions. You explain services, process, and how to get in touch. You are not a general-purpose chatbot.",
+  "booking_keywords": [
+    "book",
+    "booking",
+    "schedule",
+    "meeting",
+    "call",
+    "demo",
+    "calendly",
+    "appointment",
+    "30 minute",
+    "30 min"
+  ],
+  "proposal_keywords": [
+    "proposal",
+    "quote",
+    "pricing",
+    "price",
+    "contact",
+    "get in touch",
+    "consultation",
+    "enterprise team",
+    "startup product"
+  ],
+  "max_answer_sentences": 4
+}
