@@ -39,7 +39,8 @@ from .settings import (
     SITE_BOT_ENABLED,
     SITE_COMPANY_NAME,
     SITE_CONTACT_EMAIL,
-    SITE_FETCH_ENABLED,
+    SITE_CONTENT_ENABLED,
+    SITE_CONTENT_JSON,
     SITE_FETCH_URL,
     SITE_PROPOSAL_URL,
 )
@@ -52,7 +53,7 @@ from .site_bot import (
     site_public_erp_uid,
     site_response_meta,
 )
-from .site_fetch import fetch_site_text
+from .site_content import load_bundled_json, load_site_content_json
 
 logger = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
@@ -200,14 +201,13 @@ async def run_site_chat(
         return await _persist(session_id=session_id, erp_uid=erp_uid, message=message, response=resp, intent_class=intent_class)
 
     kb_context = "\n".join(f"- {c.text}" for c in chunks) if chunks else "(none)"
-    if SITE_FETCH_ENABLED and SITE_FETCH_URL:
-        live = await fetch_site_text(SITE_FETCH_URL)
+    if SITE_CONTENT_ENABLED:
+        live = await load_site_content_json(
+            file_path=SITE_CONTENT_JSON,
+            fetch_url=SITE_FETCH_URL,
+        )
         if live:
-            kb_context = (
-                "Live page text fetched from the public website (may be incomplete if the site is a React SPA):\n"
-                f"{live[:8000]}\n\n"
-                f"Indexed knowledge:\n{kb_context}"
-            )
+            kb_context = f"Official site content (JSON):\n{live[:9000]}\n\nIndexed knowledge:\n{kb_context}"
     chat_history_block = ""
     if DATABASE_URL and session_id and CHAT_HISTORY_TURNS > 0:
         try:
@@ -273,8 +273,22 @@ async def root() -> dict:
         "service": "Infigo Site Bot API",
         "chat": "POST /chat/public",
         "embed": "/static/infigo-embed.js",
+        "site_json": "/public/site-content.json",
         "health": "/health",
     }
+
+
+@app.get("/public/site-content.json")
+async def public_site_content_json() -> JSONResponse:
+    """Copy of bundled content — host the same file on React: public/content.json"""
+    from pathlib import Path
+    import json
+
+    p = Path(__file__).resolve().parent.parent / SITE_CONTENT_JSON
+    if not p.is_file():
+        p = Path(__file__).resolve().parent.parent / "config" / "infigo_site_content.json"
+    with open(p, "r", encoding="utf-8") as f:
+        return JSONResponse(json.load(f))
 
 
 @app.get("/health")
@@ -300,8 +314,9 @@ async def site_status() -> dict:
         "contact_email_configured": bool(SITE_CONTACT_EMAIL),
         "booking_url_configured": bool(SITE_BOOKING_URL),
         "proposal_url": SITE_PROPOSAL_URL,
+        "site_content_json": SITE_CONTENT_JSON,
+        "site_content_enabled": SITE_CONTENT_ENABLED,
         "site_fetch_url": SITE_FETCH_URL or None,
-        "site_fetch_enabled": SITE_FETCH_ENABLED and bool(SITE_FETCH_URL),
         "cors_origins": _cors_origins,
         "embed_script": "/static/infigo-embed.js",
     }

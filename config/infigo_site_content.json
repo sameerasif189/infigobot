@@ -1,0 +1,62 @@
+{
+  "company": "Infigo Solutions",
+  "tagline": "AI-powered startup and enterprise software development",
+  "services": {
+    "startup": {
+      "title": "Startup Product Development",
+      "summary": "Turn ideas into scalable digital products with a clear roadmap and modern engineering.",
+      "points": [
+        "MVP delivery in about 6–10 weeks",
+        "US-focused delivery team",
+        "Product strategy, roadmap, and UI/UX",
+        "AI-ready scalable architecture from day one",
+        "Optional AI features",
+        "CTA: Get Startup Consultation on the website"
+      ]
+    },
+    "enterprise": {
+      "title": "Enterprise Software Solutions",
+      "summary": "Scale, optimize, and maintain existing systems with dedicated engineering teams.",
+      "points": [
+        "Dedicated teams for your projects",
+        "Ongoing maintenance and reliable support",
+        "Performance optimization",
+        "Continuous feature development",
+        "AI-enabled automation",
+        "CTA: Request Enterprise Proposal or Talk To Enterprise Team"
+      ]
+    }
+  },
+  "process": [
+    "Share your idea and vision",
+    "Get a product roadmap estimate",
+    "Design and build the MVP",
+    "Launch and iterate with support"
+  ],
+  "capabilities": [
+    "Custom software",
+    "AI assistants",
+    "Automation",
+    "Analytics and data solutions"
+  ],
+  "contact": {
+    "website": "https://infigosolutions.com/",
+    "how_to_reach": "Use the Contact section on the website (name, email, phone, project notes).",
+    "meeting": "Book a 30-minute meeting via the scheduling widget on the contact page.",
+    "email_placeholder": "Set SITE_CONTACT_EMAIL in production"
+  },
+  "faqs": [
+    {
+      "q": "How long does an MVP take?",
+      "a": "Typical startup MVPs are delivered in about 6–10 weeks depending on scope."
+    },
+    {
+      "q": "Do you work with enterprises?",
+      "a": "Yes. We provide dedicated teams, maintenance, optimization, and continuous development."
+    },
+    {
+      "q": "How do I get a proposal?",
+      "a": "Use the contact form on infigosolutions.com or the enterprise / startup CTAs on the site."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "company": "Infigo Solutions",
+  "tagline": "AI-powered startup and enterprise software development",
+  "services": {
+    "startup": {
+      "title": "Startup Product Development",
+      "summary": "MVP in 6–10 weeks with roadmap, UI/UX, and scalable architecture.",
+      "points": ["Get Startup Consultation on the website"]
+    },
+    "enterprise": {
+      "title": "Enterprise Software Solutions",
+      "summary": "Dedicated teams, maintenance, optimization, and AI automation.",
+      "points": ["Request Enterprise Proposal on the website"]
+    }
+  },
+  "contact": {
+    "website": "https://infigosolutions.com/",
+    "how_to_reach": "Contact form on the website"
+  },
+  "faqs": [
+    { "q": "How do I contact Infigo?", "a": "Use the contact form at infigosolutions.com." }
+  ]
+}
