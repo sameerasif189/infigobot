@@ -36,15 +36,15 @@ Test: `POST http://127.0.0.1:8000/chat/public` with header `X-Site-Api-Key` and 
 
 ## Site content (no database)
 
-**Default:** fetches `SITE_FETCH_URL` at chat time (HTML stripped, cached ~30 min). No JSON file required.
+**Scenario 2 (JSON on site):** see [`docs/DEPLOY_JSON_AND_WIDGET.md`](docs/DEPLOY_JSON_AND_WIDGET.md)
 
 ```env
-SITE_RUNTIME_FETCH_ENABLED=true
-SITE_FETCH_URL=https://infigosolutions.com/
+SITE_JSON_URL=https://infigosolutions.com/content.json
+SITE_RUNTIME_FETCH_ENABLED=false
 SITE_CONTENT_ENABLED=false
 ```
 
-Optional later: set `SITE_CONTENT_ENABLED=true` to use `config/infigo_site_content.json` instead.
+Infigo adds `public/content.json` from `docs/examples/public-content.json` and mounts the chat widget on the main layout.
 
 ## React widget
 

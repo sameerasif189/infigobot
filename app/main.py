@@ -42,6 +42,7 @@ from .settings import (
     SITE_CONTENT_ENABLED,
     SITE_CONTENT_JSON,
     SITE_FETCH_URL,
+    SITE_JSON_URL,
     SITE_PROPOSAL_URL,
     SITE_RUNTIME_FETCH_ENABLED,
 )
@@ -54,8 +55,7 @@ from .site_bot import (
     site_public_erp_uid,
     site_response_meta,
 )
-from .site_content import load_site_content_json
-from .site_runtime import fetch_runtime_site
+from .site_content import resolve_site_context
 
 logger = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
@@ -203,22 +203,20 @@ async def run_site_chat(
         return await _persist(session_id=session_id, erp_uid=erp_uid, message=message, response=resp, intent_class=intent_class)
 
     kb_context = "\n".join(f"- {c.text}" for c in chunks) if chunks else "(none)"
-    live = ""
-    if SITE_RUNTIME_FETCH_ENABLED and SITE_FETCH_URL:
-        live = await fetch_runtime_site(SITE_FETCH_URL)
-        if live:
-            kb_context = (
-                "Live content fetched from the website at request time "
-                "(HTML stripped; React SPAs may return limited text):\n"
-                f"{live[:9000]}\n\nFallback hints:\n{kb_context}"
-            )
-    elif SITE_CONTENT_ENABLED:
-        live = await load_site_content_json(
-            file_path=SITE_CONTENT_JSON,
-            fetch_url=SITE_FETCH_URL,
-        )
-        if live:
-            kb_context = f"Official site content (JSON):\n{live[:9000]}\n\n{kb_context}"
+    live, content_source = await resolve_site_context(
+        json_url=SITE_JSON_URL,
+        runtime_enabled=SITE_RUNTIME_FETCH_ENABLED,
+        runtime_url=SITE_FETCH_URL,
+        bundled_enabled=SITE_CONTENT_ENABLED,
+        bundled_path=SITE_CONTENT_JSON,
+    )
+    if live:
+        label = {
+            "json_url": "Official site content (public content.json)",
+            "bundled_json": "Official site content (bundled JSON in API)",
+            "runtime_html": "Live website text (HTML fetch)",
+        }.get(content_source, "Site content")
+        kb_context = f"{label}:\n{live[:9000]}\n\nFallback hints:\n{kb_context}"
     chat_history_block = ""
     if DATABASE_URL and session_id and CHAT_HISTORY_TURNS > 0:
         try:
@@ -325,6 +323,16 @@ async def site_status() -> dict:
         "contact_email_configured": bool(SITE_CONTACT_EMAIL),
         "booking_url_configured": bool(SITE_BOOKING_URL),
         "proposal_url": SITE_PROPOSAL_URL,
+        "content_mode": (
+            "json_url"
+            if SITE_JSON_URL
+            else "bundled_json"
+            if SITE_CONTENT_ENABLED
+            else "runtime_html"
+            if SITE_RUNTIME_FETCH_ENABLED
+            else "fallback_only"
+        ),
+        "site_json_url": SITE_JSON_URL or None,
         "runtime_fetch_enabled": SITE_RUNTIME_FETCH_ENABLED,
         "runtime_fetch_url": SITE_FETCH_URL or None,
         "site_content_json": SITE_CONTENT_JSON,

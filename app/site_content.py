@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 from .ingest import fetch_api_feed
 
 logger = logging.getLogger(__name__)
+
+_JSON_URL_CACHE: Dict[str, Tuple[str, float]] = {}
+_JSON_CACHE_TTL = 1800
 
 _DEFAULT_JSON = Path(__file__).resolve().parent.parent / "config" / "infigo_site_content.json"
 
@@ -65,12 +69,31 @@ def load_bundled_json(path: Path | None = None) -> str:
         return ""
 
 
-async def load_site_content_json(*, file_path: str, fetch_url: str) -> str:
-    """
-    Priority:
-    1) SITE_CONTENT_JSON file in repo (recommended for React sites)
-    2) SITE_FETCH_URL — public JSON URL (e.g. https://infigosolutions.com/content.json)
-    """
+async def fetch_json_url(url: str) -> str:
+    """Fetch public content.json from the React site (cached ~30 min)."""
+    u = (url or "").strip()
+    if not u:
+        return ""
+    now = time.time()
+    hit = _JSON_URL_CACHE.get(u)
+    if hit and (now - hit[1]) < _JSON_CACHE_TTL:
+        return hit[0]
+    raw = await fetch_api_feed(u)
+    raw = raw.strip()
+    text = ""
+    if raw.startswith("{"):
+        try:
+            text = _format_content(json.loads(raw))
+        except json.JSONDecodeError as exc:
+            logger.warning("Invalid JSON from %s: %s", u, exc)
+    if not text:
+        text = raw[:12_000]
+    _JSON_URL_CACHE[u] = (text, now)
+    return text
+
+
+async def load_site_content_json(*, file_path: str, fetch_url: str = "") -> str:
+    """Bundled file and/or optional secondary URL."""
     if file_path:
         p = Path(file_path)
         if not p.is_absolute():
@@ -79,12 +102,28 @@ async def load_site_content_json(*, file_path: str, fetch_url: str) -> str:
         if text:
             return text
     if fetch_url:
-        raw = await fetch_api_feed(fetch_url)
-        raw = raw.strip()
-        if raw.startswith("{"):
-            try:
-                return _format_content(json.loads(raw))
-            except json.JSONDecodeError:
-                pass
-        return raw[:12_000]
+        return await fetch_json_url(fetch_url)
     return load_bundled_json()
+
+
+async def resolve_site_context(
+    *,
+    json_url: str,
+    runtime_enabled: bool,
+    runtime_url: str,
+    bundled_enabled: bool,
+    bundled_path: str,
+) -> tuple[str, str]:
+    """Returns (text, source_label) for status/logging."""
+    if json_url:
+        text = await fetch_json_url(json_url)
+        return text, "json_url"
+    if bundled_enabled:
+        text = await load_site_content_json(file_path=bundled_path, fetch_url="")
+        return text, "bundled_json"
+    if runtime_enabled and runtime_url:
+        from .site_runtime import fetch_runtime_site
+
+        text = await fetch_runtime_site(runtime_url)
+        return text, "runtime_html"
+    return "", "none"
