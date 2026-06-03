@@ -34,17 +34,17 @@ Test: `POST http://127.0.0.1:8000/chat/public` with header `X-Site-Api-Key` and 
 3. Env vars from `.env.example` (Production).
 4. Deploy → use URL in React embed (`docs/examples/InfigoChatWidget.tsx`).
 
-## Site content via JSON (no database)
+## Site content (no database)
 
-Default: `config/infigo_site_content.json` is loaded on every chat.
-
-**On the React site (recommended later):** copy `docs/examples/public-content.json` to your app as `public/content.json`, then set on Vercel:
+**Default:** fetches `SITE_FETCH_URL` at chat time (HTML stripped, cached ~30 min). No JSON file required.
 
 ```env
-SITE_FETCH_URL=https://infigosolutions.com/content.json
+SITE_RUNTIME_FETCH_ENABLED=true
+SITE_FETCH_URL=https://infigosolutions.com/
+SITE_CONTENT_ENABLED=false
 ```
 
-The API also exposes the bundled file at `GET /public/site-content.json`.
+Optional later: set `SITE_CONTENT_ENABLED=true` to use `config/infigo_site_content.json` instead.
 
 ## React widget
 

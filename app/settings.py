@@ -56,7 +56,12 @@ CORS_ALLOWED_ORIGINS = _env(
     "CORS_ALLOWED_ORIGINS",
     "https://infigosolutions.com,https://www.infigosolutions.com",
 )
-# Site knowledge without DB: bundled JSON (best) or public JSON URL on your React site (/public/content.json)
-SITE_CONTENT_ENABLED = _env("SITE_CONTENT_ENABLED", "true").lower() in ("1", "true", "yes")
+# Runtime: fetch live URL each chat (default). Optional bundled JSON when SITE_CONTENT_ENABLED=true.
+SITE_RUNTIME_FETCH_ENABLED = _env("SITE_RUNTIME_FETCH_ENABLED", "true").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+SITE_FETCH_URL = _env("SITE_FETCH_URL", "https://infigosolutions.com/")
+SITE_CONTENT_ENABLED = _env("SITE_CONTENT_ENABLED", "false").lower() in ("1", "true", "yes")
 SITE_CONTENT_JSON = _env("SITE_CONTENT_JSON", "config/infigo_site_content.json")
-SITE_FETCH_URL = _env("SITE_FETCH_URL", "")
