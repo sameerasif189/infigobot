@@ -39,6 +39,8 @@ from .settings import (
     SITE_BOT_ENABLED,
     SITE_COMPANY_NAME,
     SITE_CONTACT_EMAIL,
+    SITE_FETCH_ENABLED,
+    SITE_FETCH_URL,
     SITE_PROPOSAL_URL,
 )
 from .site_bot import (
@@ -50,6 +52,7 @@ from .site_bot import (
     site_public_erp_uid,
     site_response_meta,
 )
+from .site_fetch import fetch_site_text
 
 logger = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
@@ -197,6 +200,14 @@ async def run_site_chat(
         return await _persist(session_id=session_id, erp_uid=erp_uid, message=message, response=resp, intent_class=intent_class)
 
     kb_context = "\n".join(f"- {c.text}" for c in chunks) if chunks else "(none)"
+    if SITE_FETCH_ENABLED and SITE_FETCH_URL:
+        live = await fetch_site_text(SITE_FETCH_URL)
+        if live:
+            kb_context = (
+                "Live page text fetched from the public website (may be incomplete if the site is a React SPA):\n"
+                f"{live[:8000]}\n\n"
+                f"Indexed knowledge:\n{kb_context}"
+            )
     chat_history_block = ""
     if DATABASE_URL and session_id and CHAT_HISTORY_TURNS > 0:
         try:
@@ -289,6 +300,8 @@ async def site_status() -> dict:
         "contact_email_configured": bool(SITE_CONTACT_EMAIL),
         "booking_url_configured": bool(SITE_BOOKING_URL),
         "proposal_url": SITE_PROPOSAL_URL,
+        "site_fetch_url": SITE_FETCH_URL or None,
+        "site_fetch_enabled": SITE_FETCH_ENABLED and bool(SITE_FETCH_URL),
         "cors_origins": _cors_origins,
         "embed_script": "/static/infigo-embed.js",
     }

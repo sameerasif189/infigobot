@@ -56,3 +56,6 @@ CORS_ALLOWED_ORIGINS = _env(
     "CORS_ALLOWED_ORIGINS",
     "https://infigosolutions.com,https://www.infigosolutions.com",
 )
+# Fetch public site HTML at chat time (no DB). Weak on React SPAs — prefer .md KB when possible.
+SITE_FETCH_URL = _env("SITE_FETCH_URL", "https://infigosolutions.com/")
+SITE_FETCH_ENABLED = _env("SITE_FETCH_ENABLED", "true").lower() in ("1", "true", "yes")
